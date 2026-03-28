@@ -215,12 +215,27 @@
         }
     }
 
-    // Timer
+    // Timer do wyścigu (Dni, Godziny, Minuty, Sekundy)
     setInterval(() => {
-        const diff = new Date("2026-04-18T14:00:00").getTime() - new Date().getTime();
+        const target = new Date("April 18, 2026 14:00:00").getTime();
+        const now = new Date().getTime();
+        const diff = target - now;
+        
+        if (diff < 0) {
+            document.getElementById("timer").innerText = "WYŚCIG TRWA!";
+            return;
+        }
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        
         const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
-        const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-        document.getElementById("timer").innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
+        
+        document.getElementById("timer").innerText = 
+            `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+    }, 1000);
     }, 1000);
 </script>
 </body>
