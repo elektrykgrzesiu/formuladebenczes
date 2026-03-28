@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FDB LIVE - FORMULA DE BENCZES</title>
+    <title>FDB LIVE - PANEL ZARZĄDZANIA</title>
     <style>
         :root {
             --primary: #e10600;
@@ -26,7 +26,7 @@
         .container { width: 100%; max-width: 1200px; position: relative; }
 
         header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); }
-        header h1 { font-size: clamp(1.5rem, 5vw, 3rem); margin: 10px 0; text-transform: uppercase; }
+        header h1 { font-size: clamp(1.5rem, 5vw, 3rem); margin: 10px 0; text-transform: uppercase; letter-spacing: -1px; }
 
         #timer {
             font-size: clamp(2rem, 7vw, 4.5rem); font-weight: 900; color: var(--primary);
@@ -34,11 +34,23 @@
             text-shadow: 0 0 20px var(--primary);
         }
 
+        /* Panel Admina */
+        #adminPanel {
+            display: none; background: rgba(225, 6, 0, 0.1);
+            border: 1px solid var(--primary); padding: 15px;
+            margin-bottom: 20px; border-radius: 8px; text-align: center;
+        }
+        .admin-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 20px; border-radius: 4px; cursor: pointer;
+            font-weight: bold; margin: 5px; text-transform: uppercase;
+        }
+        .del-btn { background: #555; font-size: 0.7rem; padding: 2px 5px; margin-left: 10px; cursor: pointer; color: #fff; border: none; }
+
         .grid-layout { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 20px; 
-            margin-bottom: 25px; 
+            gap: 20px; margin-bottom: 25px; 
         }
 
         .card {
@@ -47,10 +59,7 @@
             border-top: 3px solid var(--primary);
         }
 
-        .card-header {
-            background: var(--accent); padding: 10px 15px;
-            font-size: 0.9rem; text-transform: uppercase;
-        }
+        .card-header { background: var(--accent); padding: 10px 15px; font-size: 0.9rem; text-transform: uppercase; }
 
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
@@ -58,29 +67,17 @@
         .time { font-family: monospace; color: var(--success); font-weight: bold; text-align: right; }
         .pts { text-align: right; font-weight: bold; color: var(--primary); }
 
-        .editable[contenteditable="true"] { 
-            background: rgba(225, 6, 0, 0.15); 
-            outline: 1px dashed var(--primary); 
-        }
+        .editable[contenteditable="true"] { background: rgba(255, 255, 255, 0.1); outline: 1px dashed var(--primary); }
 
-        .track-container {
-            width: 100%; margin-top: 30px;
-            border: 1px solid var(--accent);
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
-        }
+        .track-container { width: 100%; margin-top: 30px; border: 1px solid var(--accent); }
         .track-image { width: 100%; display: block; }
 
         .admin-trigger {
             position: absolute; top: 0; right: 0;
             background: none; color: #333; border: 1px solid #333;
             border-radius: 50%; width: 40px; height: 40px; cursor: pointer;
-            transition: 0.3s;
         }
-        .admin-active { 
-            color: var(--primary) !important; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 15px var(--primary); 
-        }
+        .admin-active { color: var(--primary) !important; border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
     </style>
 </head>
 <body>
@@ -90,31 +87,23 @@
     <header><h1>FORMUŁA DE BENCZES</h1></header>
     <div id="timer">00:00:00</div>
 
-    <div class="grid-layout">
-        <div class="card">
-            <div class="card-header">Klasyfikacja Kierowców</div>
-            <table><tbody id="driversBody"></tbody></table>
-        </div>
-        <div class="card">
-            <div class="card-header">Klasyfikacja Konstruktorów</div>
-            <table><tbody id="teamsBody"></tbody></table>
-        </div>
+    <div id="adminPanel">
+        <h3 style="margin-top:0">Panel Zarządzania</h3>
+        <button class="admin-btn" onclick="window.addDriver()">➕ Dodaj Kierowcę</button>
+        <button class="admin-btn" onclick="window.addTeam()">➕ Dodaj Zespół</button>
     </div>
 
     <div class="grid-layout">
-        <div class="card">
-            <div class="card-header">Najlepsze Okrążenia</div>
-            <table><tbody id="bestBody"></tbody></table>
-        </div>
-        <div class="card">
-            <div class="card-header">Średnie Czasy</div>
-            <table><tbody id="avgBody"></tbody></table>
-        </div>
+        <div class="card"><div class="card-header">Kierowcy</div><table><tbody id="driversBody"></tbody></table></div>
+        <div class="card"><div class="card-header">Zespoły</div><table><tbody id="teamsBody"></tbody></table></div>
     </div>
 
-    <div class="track-container">
-        <img src="tor.png" class="track-image" alt="Mapa Toru">
+    <div class="grid-layout">
+        <div class="card"><div class="card-header">Best Laps</div><table><tbody id="bestBody"></tbody></table></div>
+        <div class="card"><div class="card-header">Average Laps</div><table><tbody id="avgBody"></tbody></table></div>
     </div>
+
+    <div class="track-container"><img src="tor.png" class="track-image"></div>
 </div>
 
 <script type="module">
@@ -122,7 +111,6 @@
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
-    // Twoja konfiguracja z Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyC99ICN7B4RJ1elKXisVL21Z9SrUOINCew",
         authDomain: "formuladebenczes.firebaseapp.com",
@@ -138,94 +126,102 @@
     const auth = getAuth(app);
     const dataRef = ref(db, 'fdb_live_data');
 
-    let localDB = {
-        drivers: [{name: "Kierowca 1", pts: 0}],
-        teams: [{name: "Zespół 1", pts: 0}],
-        times: [{name: "Kierowca 1", best: "0:00.000", avg: "0:00.000"}]
-    };
-
+    let localDB = { drivers: [], teams: [], times: [] };
     window.isLoggedIn = false;
 
-    // Obsługa logowania
+    // Logowanie
     onAuthStateChanged(auth, (user) => {
         window.isLoggedIn = !!user;
         document.getElementById('lockBtn').classList.toggle('admin-active', !!user);
+        document.getElementById('adminPanel').style.display = user ? 'block' : 'none';
         render();
     });
 
     window.toggleLogin = async () => {
         if (!window.isLoggedIn) {
-            const email = prompt("Podaj e-mail admina:");
-            const pass = prompt("Podaj hasło:");
-            if (email && pass) {
-                try {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                } catch (e) {
-                    alert("Błąd logowania! Sprawdź dane w Authentication.");
-                }
+            const email = prompt("E-mail:");
+            const pass = prompt("Hasło:");
+            if(email && pass) {
+                try { await signInWithEmailAndPassword(auth, email, pass); }
+                catch (e) { alert("Błąd!"); }
             }
-        } else {
-            if (confirm("Czy chcesz się wylogować?")) signOut(auth);
+        } else { if(confirm("Wylogować?")) signOut(auth); }
+    };
+
+    // Synchronizacja danych
+    onValue(dataRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) { localDB = data; render(); }
+    });
+
+    // Funkcje Admina
+    window.addDriver = () => {
+        const name = prompt("Imię kierowcy:");
+        if (name) {
+            if(!localDB.drivers) localDB.drivers = [];
+            if(!localDB.times) localDB.times = [];
+            localDB.drivers.push({ name: name, pts: 0 });
+            localDB.times.push({ name: name, best: "0:00.000", avg: "0:00.000" });
+            save();
         }
     };
 
-    // Synchronizacja LIVE
-    onValue(dataRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            localDB = data;
-            render();
+    window.addTeam = () => {
+        const tName = prompt("Nazwa zespołu:");
+        if (tName) {
+            if(!localDB.teams) localDB.teams = [];
+            localDB.teams.push({ name: tName, pts: 0 });
+            save();
         }
-    });
+    };
 
-    function render() {
-        const edit = window.isLoggedIn;
-        const row = (cat, i, field, val, cl="") => `
-            <td class="${edit?'editable':''} ${cl}" 
-                contenteditable="${edit}" 
-                onblur="window.updateData('${cat}',${i},'${field}',this.innerText)">${val}</td>`;
+    window.removeEntry = (cat, index) => {
+        if(confirm("Usunąć?")) {
+            localDB[cat].splice(index, 1);
+            save();
+        }
+    };
 
-        // Sortowanie i wyświetlanie
-        localDB.drivers.sort((a,b) => b.pts - a.pts);
-        document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => 
-            `<tr><td>${i+1}</td>${row('drivers',i,'name',d.name)}${row('drivers',i,'pts',d.pts,'pts')}</tr>`).join('');
-
-        localDB.teams.sort((a,b) => b.pts - a.pts);
-        document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => 
-            `<tr><td>${i+1}</td>${row('teams',i,'name',t.name)}${row('teams',i,'pts',t.pts,'pts')}</tr>`).join('');
-
-        document.getElementById('bestBody').innerHTML = localDB.times.map((t, i) => 
-            `<tr><td>${t.name}</td>${row('times',i,'best',t.best,'time')}</tr>`).join('');
-
-        document.getElementById('avgBody').innerHTML = localDB.times.map((t, i) => 
-            `<tr><td>${t.name}</td>${row('times',i,'avg',t.avg,'time')}</tr>`).join('');
-    }
+    const save = () => set(dataRef, localDB);
 
     window.updateData = (cat, idx, field, val) => {
         if (!window.isLoggedIn) return;
         localDB[cat][idx][field] = field === 'pts' ? parseInt(val) || 0 : val;
-        set(dataRef, localDB);
+        save();
     };
 
-    // Timer do wyścigu
-    setInterval(() => {
-        const target = new Date("April 18, 2026 14:00:00").getTime();
-        const now = new Date().getTime();
-        const diff = target - now;
-        
-        if (diff < 0) {
-            document.getElementById("timer").innerText = "WYŚCIG TRWA!";
-            return;
+    function render() {
+        const edit = window.isLoggedIn;
+        const del = (cat, i) => edit ? `<button class="del-btn" onclick="window.removeEntry('${cat}',${i})">X</button>` : '';
+        const row = (cat, i, field, val, cl="") => `<td class="${edit?'editable':''} ${cl}" contenteditable="${edit}" onblur="window.updateData('${cat}',${i},'${field}',this.innerText)">${val}</td>`;
+
+        if(localDB.drivers) {
+            localDB.drivers.sort((a,b) => b.pts - a.pts);
+            document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => 
+                `<tr><td>${i+1}${del('drivers',i)}</td>${row('drivers',i,'name',d.name)}${row('drivers',i,'pts',d.pts,'pts')}</tr>`).join('');
         }
 
-        const h = Math.floor(diff / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
-        
-        document.getElementById("timer").innerText = 
-            `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }, 1000);
+        if(localDB.teams) {
+            localDB.teams.sort((a,b) => b.pts - a.pts);
+            document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => 
+                `<tr><td>${i+1}${del('teams',i)}</td>${row('teams',i,'name',t.name)}${row('teams',i,'pts',t.pts,'pts')}</tr>`).join('');
+        }
 
+        if(localDB.times) {
+            document.getElementById('bestBody').innerHTML = localDB.times.map((t, i) => 
+                `<tr><td>${t.name}${del('times',i)}</td>${row('times',i,'best',t.best,'time')}</tr>`).join('');
+            document.getElementById('avgBody').innerHTML = localDB.times.map((t, i) => 
+                `<tr><td>${t.name}</td>${row('times',i,'avg',t.avg,'time')}</tr>`).join('');
+        }
+    }
+
+    // Timer
+    setInterval(() => {
+        const diff = new Date("2026-04-18T14:00:00").getTime() - new Date().getTime();
+        const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+        const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+        document.getElementById("timer").innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }, 1000);
 </script>
 </body>
 </html>
