@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FDB LIVE PANEL - FORMULA DE BENCZES</title>
+    <style>
+        :root {
+            --primary: #e10600;
+            --dark-bg: #030305;
+            --card-bg: #0a0a0f;
+            --light: #f1f1f1;
+            --accent: #2c2c36;
+            --success: #00ff41;
+            --best-lap: #d800ff;
+        }
+
+        body {
+            font-family: 'Segoe UI Bold', sans-serif;
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at 50% 50%, #1a1a25 0%, #030305 100%);
+            color: var(--light);
+            margin: 0; padding: 15px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .container { width: 100%; max-width: 1200px; position: relative; }
+
+        header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); }
+        header h1 { font-size: clamp(1.5rem, 5vw, 3rem); margin: 10px 0; text-transform: uppercase; letter-spacing: -1px; }
+
+        #timer {
+            font-size: clamp(2rem, 7vw, 4.5rem); font-weight: 900; color: var(--primary);
+            text-align: center; margin-bottom: 30px; font-family: monospace;
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        .grid-layout { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 25px; 
+        }
+
+        .card {
+            background: var(--card-bg); border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--accent); padding: 10px 15px;
+            border-bottom: 2px solid var(--primary);
+            clip-path: polygon(0 0, 100% 0, 97% 100%, 0% 100%);
+        }
+        .card-header h2 { margin: 0; font-size: 0.9rem; text-transform: uppercase; }
+
+        .card-body { padding: 10px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.9rem; position: relative; }
+
+        .time { font-family: monospace; color: var(--success); font-weight: bold; text-align: right; }
+        .pts { text-align: right; font-weight: bold; color: var(--primary); }
+
+        .editable[contenteditable="true"] { background: rgba(255,255,255,0.08); outline: 1px solid var(--primary); border-radius: 2px; }
+
+        /* Kreska lidera */
+        #bestBody tr:first-child td:first-child::before,
+        #driversBody tr:first-child td:first-child::before, 
+        #teamsBody tr:first-child td:first-child::before {
+            content: ''; position: absolute; left: 0; top: 15%; height: 70%; width: 4px;
+            background: currentColor; box-shadow: 0 0 10px currentColor;
+        }
+
+        /* Sekcja Mapy */
+        .map-section { width: 100%; margin-top: 50px; padding-bottom: 50px; display: flex; justify-content: center; }
+        .track-container {
+            width: 100%; aspect-ratio: 16 / 9; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--accent); background: #000;
+            box-shadow: 0 0 40px rgba(0,0,0,1);
+        }
+        .track-image { height: 100%; width: auto; transform: rotate(90deg); scale: 1.4; }
+
+        .admin-trigger {
+            position: absolute; top: -10px; right: 0;
+            background: transparent; color: #333; border: 1px solid #333;
+            border-radius: 50%; width: 35px; height: 35px; cursor: pointer;
+        }
+        .admin-active { color: var(--primary) !important; border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button class="admin-trigger" id="lockBtn" onclick="toggleLogin()">🔒</button>
+    <header><h1>FORMUŁA DE BENCZES</h1></header>
+    <div id="timer">00d 00h 00m 00s</div>
+
+    <div class="grid-layout">
+        <div class="card"><div class="card-header"><h2>Driver Standings</h2></div><div class="card-body"><table><tbody id="driversBody"></tbody></table></div></div>
+        <div class="card"><div class="card-header"><h2>Team Standings</h2></div><div class="card-body"><table><tbody id="teamsBody"></tbody></table></div></div>
+    </div>
+
+    <div class="grid-layout">
+        <div class="card"><div class="card-header"><h2>Best Lap Time</h2></div><div class="card-body"><table><tbody id="bestBody"></tbody></table></div></div>
+        <div class="card"><div class="card-header"><h2>Average Laps Time</h2></div><div class="card-body"><table><tbody id="avgBody"></tbody></table></div></div>
+    </div>
+
+    <div class="map-section"><div class="track-container"><img src="tor.png" class="track-image"></div></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+    // TWOJA POPRAWIONA KONFIGURACJA
+    const firebaseConfig = {
+        apiKey: "AIzaSyC99ICN7B4RJ1elKXisVL21Z9SrUOINCew",
+        authDomain: "formuladebenczes.firebaseapp.com",
+        databaseURL: "https://formuladebenczes-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "formuladebenczes",
+        storageBucket: "formuladebenczes.firebasestorage.app",
+        messagingSenderId: "30090958950",
+        appId: "1:30090958950:web:94184dbbf0fb24d85af5a7",
+        measurementId: "G-M6GGRMYVRH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dataRef = ref(db, 'fdb_live_data');
+
+    // Startowe dane - zostaną nadpisane przez bazę przy pierwszym zapisie
+    let localDB = {
+        drivers: [{name: "dejv", pts: 25}, {name: "piotrkow", pts: 18}],
+        teams: [{name: "MV33 born2win", pts: 43}],
+        times: [{name: "dejv", best: "1:12.455", avg: "1:13.102"}]
+    };
+
+    window.isLoggedIn = false;
+
+    // Słuchanie zmian w bazie (LIVE)
+    onValue(dataRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            localDB = data;
+            render();
+        }
+    });
+
+    window.toggleLogin = () => {
+        if (!window.isLoggedIn) {
+            if (prompt("Hasło admina:") === "admin123") {
+                window.isLoggedIn = true;
+                document.getElementById('lockBtn').classList.add('admin-active');
+                render();
+            }
+        } else {
+            window.isLoggedIn = false;
+            document.getElementById('lockBtn').classList.remove('admin-active');
+            render();
+        }
+    };
+
+    function render() {
+        localDB.drivers.sort((a, b) => b.pts - a.pts);
+        localDB.teams.sort((a, b) => b.pts - a.pts);
+        
+        const r = (c, i, f, v, cl = "") => `<td class="${window.isLoggedIn ? 'editable' : ''} ${cl}" contenteditable="${window.isLoggedIn}" onblur="window.updateData('${c}',${i},'${f}',this.innerText)">${v}</td>`;
+
+        document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => `<tr><td>${i+1}</td>${r('drivers',i,'name',d.name)}${r('drivers',i,'pts',d.pts,'pts')}</tr>`).join('');
+        document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => `<tr><td>${i+1}</td>${r('teams',i,'name',t.name)}${r('teams',i,'pts',t.pts,'pts')}</tr>`).join('');
+        
+        let bS = [...localDB.times].sort((a, b) => a.best.localeCompare(b.best));
+        document.getElementById('bestBody').innerHTML = bS.map((g, i) => `<tr><td>${g.name}</td><td class="time ${window.isLoggedIn ? 'editable' : ''}" contenteditable="${window.isLoggedIn}" onblur="window.updateTime('${g.name}','best',this.innerText)">${g.best}</td></tr>`).join('');
+        
+        let aS = [...localDB.times].sort((a, b) => a.avg.localeCompare(b.avg));
+        document.getElementById('avgBody').innerHTML = aS.map((g, i) => `<tr><td>${g.name}</td><td class="time ${window.isLoggedIn ? 'editable' : ''}" contenteditable="${window.isLoggedIn}" onblur="window.updateTime('${g.name}','avg',this.innerText)">${g.avg}</td></tr>`).join('');
+    }
+
+    // Funkcje zapisu do Firebase
+    window.updateData = (cat, idx, field, val) => {
+        localDB[cat][idx][field] = field === 'pts' ? parseInt(val) || 0 : val;
+        set(dataRef, localDB);
+    };
+
+    window.updateTime = (name, field, val) => {
+        let it = localDB.times.find(t => t.name === name);
+        if(it) it[field] = val;
+        set(dataRef, localDB);
+    };
+
+    setInterval(() => {
+        const diff = new Date(`April 18, 2026 14:00:00`).getTime() - new Date().getTime();
+        if (diff < 0) { document.getElementById("timer").innerText = "WYŚCIG!"; return; }
+        const pad = (n) => n < 10 ? '0' + n : n;
+        const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+        document.getElementById("timer").innerText = `${pad(d)}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+    }, 1000);
+    render();
+</script>
+</body>
+</html>
