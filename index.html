@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FDB LIVE - PANEL ZARZĄDZANIA</title>
+    <title>FDB LIVE - FORMULA DE BENCZES</title>
     <style>
         :root {
             --primary: #e10600;
@@ -29,9 +29,9 @@
         header h1 { font-size: clamp(1.5rem, 5vw, 3rem); margin: 10px 0; text-transform: uppercase; letter-spacing: -1px; }
 
         #timer {
-            font-size: clamp(2rem, 7vw, 4.5rem); font-weight: 900; color: var(--primary);
+            font-size: clamp(1.5rem, 5vw, 3.5rem); font-weight: 900; color: var(--primary);
             text-align: center; margin-bottom: 30px; font-family: monospace;
-            text-shadow: 0 0 20px var(--primary);
+            text-shadow: 0 0 20px rgba(225, 6, 0, 0.5);
         }
 
         /* Panel Admina */
@@ -45,7 +45,7 @@
             padding: 10px 20px; border-radius: 4px; cursor: pointer;
             font-weight: bold; margin: 5px; text-transform: uppercase;
         }
-        .del-btn { background: #555; font-size: 0.7rem; padding: 2px 5px; margin-left: 10px; cursor: pointer; color: #fff; border: none; }
+        .del-btn { background: #555; font-size: 0.7rem; padding: 2px 5px; margin-left: 10px; cursor: pointer; color: #fff; border: none; border-radius: 3px; }
 
         .grid-layout { 
             display: grid; 
@@ -85,22 +85,23 @@
 <div class="container">
     <button class="admin-trigger" id="lockBtn" onclick="toggleLogin()">🔒</button>
     <header><h1>FORMUŁA DE BENCZES</h1></header>
-    <div id="timer">00:00:00</div>
+    <div id="timer">00d 00h 00m 00s</div>
 
     <div id="adminPanel">
         <h3 style="margin-top:0">Panel Zarządzania</h3>
         <button class="admin-btn" onclick="window.addDriver()">➕ Dodaj Kierowcę</button>
         <button class="admin-btn" onclick="window.addTeam()">➕ Dodaj Zespół</button>
+        <button class="admin-btn" style="background:#555" onclick="window.resetDatabase()">⚠️ Resetuj do Domyślnych</button>
     </div>
 
     <div class="grid-layout">
-        <div class="card"><div class="card-header">Kierowcy</div><table><tbody id="driversBody"></tbody></table></div>
-        <div class="card"><div class="card-header">Zespoły</div><table><tbody id="teamsBody"></tbody></table></div>
+        <div class="card"><div class="card-header">Klasyfikacja Kierowców</div><table><tbody id="driversBody"></tbody></table></div>
+        <div class="card"><div class="card-header">Klasyfikacja Konstruktorów</div><table><tbody id="teamsBody"></tbody></table></div>
     </div>
 
     <div class="grid-layout">
-        <div class="card"><div class="card-header">Best Laps</div><table><tbody id="bestBody"></tbody></table></div>
-        <div class="card"><div class="card-header">Average Laps</div><table><tbody id="avgBody"></tbody></table></div>
+        <div class="card"><div class="card-header">Najlepsze Okrążenia</div><table><tbody id="bestBody"></tbody></table></div>
+        <div class="card"><div class="card-header">Średnie Czasy</div><table><tbody id="avgBody"></tbody></table></div>
     </div>
 
     <div class="track-container"><img src="tor.png" class="track-image"></div>
@@ -126,10 +127,31 @@
     const auth = getAuth(app);
     const dataRef = ref(db, 'fdb_live_data');
 
-    let localDB = { drivers: [], teams: [], times: [] };
+    // LISTA STARTOWA TWOICH KIEROWCÓW I ZESPOŁÓW
+    const defaultDB = {
+        drivers: [
+            { name: "Dejv", pts: 0 }, { name: "Piotrkow", pts: 0 },
+            { name: "Wiechson", pts: 0 }, { name: "Kappa Żul", pts: 0 },
+            { name: "Krystiano13", pts: 0 }, { name: "Seba", pts: 0 }
+        ],
+        teams: [
+            { name: "MV33 born2win", pts: 0 },
+            { name: "Żule Racing", pts: 0 },
+            { name: "The UnderTakers", pts: 0 }
+        ],
+        times: [
+            { name: "Dejv", best: "0:00.000", avg: "0:00.000" },
+            { name: "Piotrkow", best: "0:00.000", avg: "0:00.000" },
+            { name: "Wiechson", best: "0:00.000", avg: "0:00.000" },
+            { name: "Kappa Żul", best: "0:00.000", avg: "0:00.000" },
+            { name: "Krystiano13", best: "0:00.000", avg: "0:00.000" },
+            { name: "Seba", best: "0:00.000", avg: "0:00.000" }
+        ]
+    };
+
+    let localDB = defaultDB;
     window.isLoggedIn = false;
 
-    // Logowanie
     onAuthStateChanged(auth, (user) => {
         window.isLoggedIn = !!user;
         document.getElementById('lockBtn').classList.toggle('admin-active', !!user);
@@ -143,23 +165,20 @@
             const pass = prompt("Hasło:");
             if(email && pass) {
                 try { await signInWithEmailAndPassword(auth, email, pass); }
-                catch (e) { alert("Błąd!"); }
+                catch (e) { alert("Błąd logowania!"); }
             }
         } else { if(confirm("Wylogować?")) signOut(auth); }
     };
 
-    // Synchronizacja danych
     onValue(dataRef, (snapshot) => {
         const data = snapshot.val();
         if (data) { localDB = data; render(); }
+        else { set(dataRef, defaultDB); } // Jeśli baza pusta, wgraj domyślnych
     });
 
-    // Funkcje Admina
     window.addDriver = () => {
         const name = prompt("Imię kierowcy:");
         if (name) {
-            if(!localDB.drivers) localDB.drivers = [];
-            if(!localDB.times) localDB.times = [];
             localDB.drivers.push({ name: name, pts: 0 });
             localDB.times.push({ name: name, best: "0:00.000", avg: "0:00.000" });
             save();
@@ -169,14 +188,19 @@
     window.addTeam = () => {
         const tName = prompt("Nazwa zespołu:");
         if (tName) {
-            if(!localDB.teams) localDB.teams = [];
             localDB.teams.push({ name: tName, pts: 0 });
             save();
         }
     };
 
+    window.resetDatabase = () => {
+        if(confirm("Czy na pewno chcesz zresetować wszystkich kierowców i punkty do zera?")) {
+            set(dataRef, defaultDB);
+        }
+    }
+
     window.removeEntry = (cat, index) => {
-        if(confirm("Usunąć?")) {
+        if(confirm("Usunąć ten wiersz?")) {
             localDB[cat].splice(index, 1);
             save();
         }
@@ -195,47 +219,29 @@
         const del = (cat, i) => edit ? `<button class="del-btn" onclick="window.removeEntry('${cat}',${i})">X</button>` : '';
         const row = (cat, i, field, val, cl="") => `<td class="${edit?'editable':''} ${cl}" contenteditable="${edit}" onblur="window.updateData('${cat}',${i},'${field}',this.innerText)">${val}</td>`;
 
-        if(localDB.drivers) {
-            localDB.drivers.sort((a,b) => b.pts - a.pts);
-            document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => 
-                `<tr><td>${i+1}${del('drivers',i)}</td>${row('drivers',i,'name',d.name)}${row('drivers',i,'pts',d.pts,'pts')}</tr>`).join('');
-        }
+        localDB.drivers.sort((a,b) => b.pts - a.pts);
+        document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => 
+            `<tr><td>${i+1}${del('drivers',i)}</td>${row('drivers',i,'name',d.name)}${row('drivers',i,'pts',d.pts,'pts')}</tr>`).join('');
 
-        if(localDB.teams) {
-            localDB.teams.sort((a,b) => b.pts - a.pts);
-            document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => 
-                `<tr><td>${i+1}${del('teams',i)}</td>${row('teams',i,'name',t.name)}${row('teams',i,'pts',t.pts,'pts')}</tr>`).join('');
-        }
+        localDB.teams.sort((a,b) => b.pts - a.pts);
+        document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => 
+            `<tr><td>${i+1}${del('teams',i)}</td>${row('teams',i,'name',t.name)}${row('teams',i,'pts',t.pts,'pts')}</tr>`).join('');
 
-        if(localDB.times) {
-            document.getElementById('bestBody').innerHTML = localDB.times.map((t, i) => 
-                `<tr><td>${t.name}${del('times',i)}</td>${row('times',i,'best',t.best,'time')}</tr>`).join('');
-            document.getElementById('avgBody').innerHTML = localDB.times.map((t, i) => 
-                `<tr><td>${t.name}</td>${row('times',i,'avg',t.avg,'time')}</tr>`).join('');
-        }
+        document.getElementById('bestBody').innerHTML = localDB.times.map((t, i) => 
+            `<tr><td>${t.name}${del('times',i)}</td>${row('times',i,'best',t.best,'time')}</tr>`).join('');
+        document.getElementById('avgBody').innerHTML = localDB.times.map((t, i) => 
+            `<tr><td>${t.name}</td>${row('times',i,'avg',t.avg,'time')}</tr>`).join('');
     }
 
-    // Timer do wyścigu (Dni, Godziny, Minuty, Sekundy)
+    // Timer (Dni, Godziny, Minuty, Sekundy)
     setInterval(() => {
-        const target = new Date("April 18, 2026 14:00:00").getTime();
-        const now = new Date().getTime();
-        const diff = target - now;
-        
-        if (diff < 0) {
-            document.getElementById("timer").innerText = "WYŚCIG TRWA!";
-            return;
-        }
-
+        const diff = new Date("2026-04-18T14:00:00").getTime() - new Date().getTime();
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const s = Math.floor((diff % (1000 * 60)) / 1000);
-        
         const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
-        
-        document.getElementById("timer").innerText = 
-            `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
-    }, 1000);
+        document.getElementById("timer").innerText = `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
     }, 1000);
 </script>
 </body>
