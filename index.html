@@ -4,145 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FORMULA DE BENCZES - LIVE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #ff0000;
-            --dark-bg: #030303;
-            --card-bg: rgba(7, 7, 10, 0.98);
-            --light: #ffffff;
+            --primary-glow: rgba(255, 0, 0, 0.6);
+            --dark-bg: #0a0a0b;
+            --card-bg: rgba(20, 20, 25, 0.95);
+            --border: rgba(255, 255, 255, 0.1);
+            --light: #f4f4f4;
             --success: #00ff41;
-            --glow-min: 0 0 6px rgba(255, 0, 0, 0.3);
+            --accent: #2c2c2c;
         }
 
         body {
-            margin: 0; padding: 10px; color: var(--light);
+            margin: 0; padding: 20px; color: var(--light);
             font-family: 'Roboto Mono', monospace;
-            display: flex; flex-direction: column; align-items: center;
-            background: 
-                linear-gradient(27deg, #111 5px, transparent 5px) 0 5px,
-                linear-gradient(207deg, #111 5px, transparent 5px) 10px 0px,
-                linear-gradient(27deg, #1a1a1a 5px, transparent 5px) 0px 10px,
-                linear-gradient(207deg, #1a1a1a 5px, transparent 5px) 10px 5px,
-                linear-gradient(90deg, #181818 10px, transparent 10px),
-                linear-gradient(#151515 25%, #111 25%, #111 50%, transparent 50%, transparent 75%, #1d1d1d 75%, #1d1d1d);
-            background-size: 20px 20px; background-color: #111;
+            background-color: var(--dark-bg);
+            background-image: 
+                radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 32px 32px;
+            line-height: 1.5;
         }
 
-        .container { width: 100%; max-width: 1300px; position: relative; }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; }
 
+        /* HEADER & LOGO */
         header { 
-            text-align: center; margin-bottom: 20px; padding: 15px;
-            border-bottom: 6px solid var(--primary); background: rgba(0,0,0,0.95);
-            transform: skew(-5deg);
+            text-align: center; margin-bottom: 40px; position: relative;
+            padding: 30px; border: 1px solid var(--border);
+            background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+            clip-path: polygon(0 0, 100% 0, 98% 100%, 2% 100%);
         }
         header h1 { 
-            font-family: 'Orbitron', sans-serif; font-size: clamp(1.4rem, 6vw, 4rem); 
+            font-family: 'Orbitron', sans-serif; font-size: clamp(1.8rem, 6vw, 4.5rem); 
             margin: 0; text-transform: uppercase; font-weight: 900; font-style: italic;
-            color: var(--light); text-shadow: 2px 2px 0px var(--primary);
+            letter-spacing: -2px; color: var(--light);
+            text-shadow: 4px 4px 0px var(--primary), 0 0 20px var(--primary-glow);
         }
 
-        .timer-section { text-align: center; margin: 25px 0; }
-        #timer { font-family: 'Orbitron'; font-size: clamp(1.6rem, 8vw, 3.8rem); color: var(--primary); font-weight: 900; text-shadow: var(--glow-min); }
-        
-        /* PRZYCISK RULES */
+        /* TIMER */
+        .timer-section { 
+            display: flex; flex-direction: column; align-items: center; 
+            margin-bottom: 50px; padding: 20px;
+        }
+        #timer { 
+            font-family: 'Orbitron'; font-size: clamp(2rem, 10vw, 5rem); 
+            color: var(--light); font-weight: 900; letter-spacing: 5px;
+            margin: 10px 0;
+        }
+        .timer-sub-text { 
+            text-transform: uppercase; color: var(--primary); 
+            font-weight: 900; letter-spacing: 3px; font-size: 1.2rem;
+        }
+
+        /* BUTTONS */
         .rules-btn {
-            background: #000; border: 2px solid var(--primary); color: white;
-            padding: 8px 20px; font-family: 'Orbitron'; cursor: pointer;
-            margin-top: 15px; font-weight: 900; text-transform: uppercase;
-            transition: 0.3s; transform: skew(-10deg);
+            background: transparent; border: 2px solid var(--primary); color: var(--primary);
+            padding: 12px 40px; font-family: 'Orbitron'; cursor: pointer;
+            margin-top: 25px; font-weight: 900; text-transform: uppercase;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
         }
-        .rules-btn:hover { background: var(--primary); box-shadow: var(--glow-min); }
+        .rules-btn:hover { 
+            background: var(--primary); color: white; 
+            box-shadow: 0 0 20px var(--primary-glow); transform: scale(1.05);
+        }
 
-        /* MODAL (OKIENKO) */
+        /* GRID SYSTEM */
+        .grid-layout { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+            gap: 25px; 
+        }
+        @media (max-width: 500px) { .grid-layout { grid-template-columns: 1fr; } }
+
+        /* CARDS */
+        .card { 
+            background: var(--card-bg); border: 1px solid var(--border); 
+            border-radius: 4px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: border 0.3s;
+        }
+        .card:hover { border-color: var(--primary); }
+        
+        .card-header { 
+            background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
+            padding: 15px 20px; font-size: 1.1rem; text-transform: uppercase; 
+            font-weight: 900; color: white; font-family: 'Orbitron';
+        }
+
+        /* TABLES */
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.95rem; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .pos { width: 40px; color: rgba(255,255,255,0.3); font-weight: 900; }
+        .pts { text-align: right; font-weight: 900; color: var(--primary); font-size: 1.4rem; font-family: 'Orbitron'; }
+        .time { font-weight: 900; color: var(--success); text-align: right; font-size: 1.1rem; }
+
+        /* TRACK SECTION */
+        .last-race-header { 
+            grid-column: 1 / -1; text-align: left; font-family: 'Orbitron'; 
+            font-size: 2rem; color: var(--light); margin-top: 40px; 
+            padding-left: 15px; border-left: 8px solid var(--primary);
+        }
+        .track-section { 
+            grid-column: 1 / -1; height: 400px; border: 1px solid var(--border);
+            background: #000; position: relative; border-radius: 8px; margin-bottom: 50px;
+        }
+        .track-image { 
+            width: 100%; height: 100%; object-fit: contain; padding: 20px; 
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+        }
+
+        /* ADMIN INTERFACE */
+        #adminPanel { 
+            background: #111; border: 1px solid var(--primary); padding: 25px; 
+            margin-bottom: 30px; border-radius: 8px; box-shadow: 0 0 40px rgba(255,0,0,0.1);
+        }
+        .admin-input { 
+            background: #222; border: 1px solid #444; color: white; padding: 12px; 
+            margin: 5px; font-family: 'Roboto Mono'; width: 250px; border-radius: 4px;
+        }
+        .admin-btn { 
+            background: #333; color: white; border: none; padding: 12px 20px; 
+            cursor: pointer; font-weight: 900; margin: 5px; border-radius: 4px;
+            font-family: 'Orbitron'; font-size: 0.75rem; transition: 0.2s;
+        }
+        .admin-btn:hover { background: var(--primary); }
+
+        /* MODAL */
         #rulesModal {
             display: none; position: fixed; z-index: 10000; left: 0; top: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(5px);
+            width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
         }
         .modal-content {
-            background: var(--card-bg); margin: 10% auto; padding: 20px;
-            border: 2px solid var(--primary); width: 80%; max-width: 600px;
-            position: relative; box-shadow: 0 0 30px rgba(255,0,0,0.2);
+            background: #111; margin: 5% auto; padding: 40px; border-top: 5px solid var(--primary);
+            width: 90%; max-width: 700px; border-radius: 4px;
         }
-        .close-modal { position: absolute; top: 10px; right: 15px; color: var(--primary); font-size: 2rem; cursor: pointer; font-weight: 900; }
-        #rulesEditor { 
-            width: 100%; min-height: 200px; color: #ccc; line-height: 1.6;
-            outline: none; white-space: pre-wrap;
-        }
-
-        .admin-trigger { 
-            position: fixed; top: 10px; right: 10px; 
-            background: rgba(255, 0, 0, 0.2); border: 1px solid var(--primary); 
-            color: var(--primary); font-size: 1.5rem; cursor: pointer; 
-            z-index: 9999; padding: 5px 10px; border-radius: 5px;
-        }
-        .admin-active { background: var(--primary) !important; color: white !important; }
-
-        #adminPanel { display: none; background: #000; border: 2px solid var(--primary); padding: 20px; margin-bottom: 30px; text-align: center; }
-        .admin-input { background: #111; border: 1px solid var(--primary); color: white; padding: 8px; margin: 5px; font-family: 'Orbitron'; width: 200px; }
-        .admin-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: 900; margin: 5px; text-transform: uppercase; font-family: 'Orbitron'; font-size: 0.8rem; }
-
-        .grid-layout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
-        @media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
-
-        .card { background: var(--card-bg); border: 1px solid #1a1a1a; position: relative; margin-bottom: 10px; }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary); }
-        .card-header { background: #0a0a0a; padding: 12px; font-size: 1rem; text-transform: uppercase; font-weight: 900; color: var(--primary); font-family: 'Orbitron'; border-bottom: 1px solid #222; }
-
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px; border-bottom: 1px solid #111; font-size: 0.85rem; }
-        .pts { text-align: right; font-weight: 900; color: var(--primary); font-size: 1.2rem; }
-        .time { font-weight: 900; color: var(--success); text-align: right; }
-
-        .last-race-header { grid-column: 1 / -1; text-align: center; font-family: 'Orbitron'; font-size: clamp(1.3rem, 5vw, 2.2rem); color: var(--primary); margin: 40px 0 20px 0; text-transform: uppercase; border-bottom: 2px solid var(--primary); }
-        .track-section { grid-column: 1 / -1; width: 100%; height: 350px; border: 3px solid #1a1a1a; background: #000; position: relative; overflow: hidden; margin-bottom: 40px; }
-        .track-image { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(90deg); width: 350px; height: 100vw; max-height: 1200px; object-fit: contain; }
-        .del-btn { background: #222; color: #ff0000; border: none; padding: 3px 6px; cursor: pointer; margin-left: 8px; font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
 <div id="rulesModal">
     <div class="modal-content">
-        <span class="close-modal" onclick="closeRules()">&times;</span>
-        <h2 style="font-family:'Orbitron'; color:var(--primary);">RULES</h2>
-        <div id="rulesEditor" onblur="window.updateRules(this.innerText)">Wpisz regulamin...</div>
+        <span class="close-modal" style="float:right; cursor:pointer; font-size:2rem" onclick="closeRules()">&times;</span>
+        <h2 style="font-family:'Orbitron'; color:var(--primary); margin-top:0">REGULATIONS</h2>
+        <div id="rulesEditor" style="min-height:300px; outline:none;" onblur="window.updateRules(this.innerText)">Wpisz regulamin...</div>
     </div>
 </div>
 
 <div class="container">
-    <button class="admin-trigger" id="lockBtn" onclick="toggleLogin()">🔒</button>
-    <header><h1>FORMULA DE BENCZES</h1></header>
+    <button class="admin-trigger" id="lockBtn" style="position:fixed; top:20px; right:20px; z-index:9999; background:none; border:1px solid var(--border); color:white; cursor:pointer; padding:10px;" onclick="toggleLogin()">🔒</button>
     
+    <header>
+        <h1>FORMULA DE BENCZES</h1>
+    </header>
+
     <div class="timer-section">
-        <div id="timer">00D 00H 00M 00S</div>
         <div id="raceName" class="timer-sub-text">Czekanie na dane...</div>
-        <button class="rules-btn" onclick="openRules()">Rules</button>
+        <div id="timer">00D 00H 00M 00S</div>
+        <button class="rules-btn" onclick="openRules()">Pokaż Regulamin</button>
     </div>
 
     <div id="adminPanel">
-        <div style="margin-bottom: 15px;">
-            <input type="datetime-local" id="newDate" class="admin-input">
-            <input type="text" id="newName" class="admin-input" placeholder="Race Name">
-            <button class="admin-btn" onclick="updateRaceInfo()">💾 Save Race Info</button>
-        </div>
-        <button class="admin-btn" onclick="window.addDriver()">➕ Driver</button>
-        <button class="admin-btn" onclick="window.addTeam()">➕ Team</button>
-        <button class="admin-btn" style="background:#333" onclick="window.resetDatabase()">⚠️ Reset</button>
+        <h3 style="margin-top:0; color:var(--primary); font-family:'Orbitron'">ADMIN DASHBOARD</h3>
+        <input type="datetime-local" id="newDate" class="admin-input">
+        <input type="text" id="newName" class="admin-input" placeholder="Nazwa wyścigu">
+        <button class="admin-btn" onclick="updateRaceInfo()">Zapisz Info</button>
+        <hr style="border:0; border-top:1px solid #222; margin:20px 0;">
+        <button class="admin-btn" onclick="window.addDriver()">+ Kierowca</button>
+        <button class="admin-btn" onclick="window.addTeam()">+ Zespół</button>
+        <button class="admin-btn" style="background:#b30000" onclick="window.resetDatabase()">Reset Bazy</button>
     </div>
 
     <div class="grid-layout">
-        <div class="card"><div class="card-header">Drivers Standings</div><table><tbody id="driversBody"></tbody></table></div>
-        <div class="card"><div class="card-header">Constructors Standings</div><table><tbody id="teamsBody"></tbody></table></div>
+        <div class="card">
+            <div class="card-header">Drivers Standings</div>
+            <table><tbody id="driversBody"></tbody></table>
+        </div>
+        <div class="card">
+            <div class="card-header">Constructors Standings</div>
+            <table><tbody id="teamsBody"></tbody></table>
+        </div>
+        
         <div class="last-race-header">LAST RACE REPORT</div>
-        <div class="card"><div class="card-header">Best Lap Times</div><table><tbody id="bestBody"></tbody></table></div>
-        <div class="card"><div class="card-header">Average Laps Time</div><table><tbody id="avgBody"></tbody></table></div>
-        <div class="track-section"><img src="tor.png" class="track-image"></div>
+        
+        <div class="card">
+            <div class="card-header">Best Lap Times</div>
+            <table><tbody id="bestBody"></tbody></table>
+        </div>
+        <div class="card">
+            <div class="card-header">Average Laps Time</div>
+            <table><tbody id="avgBody"></tbody></table>
+        </div>
+        
+        <div class="track-section">
+            <img src="tor.png" class="track-image" alt="Circuit Map">
+        </div>
     </div>
 </div>
 
 <script type="module">
+    // --- TUTAJ POZOSTAJE TWOJA LOGIKA FIREBASE (NIE ZMIENIAM JEJ) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
@@ -170,7 +235,7 @@
 
     onAuthStateChanged(auth, (user) => {
         window.isLoggedIn = !!user;
-        document.getElementById('lockBtn').classList.toggle('admin-active', !!user);
+        document.getElementById('lockBtn').innerHTML = user ? '🔓' : '🔒';
         document.getElementById('adminPanel').style.display = user ? 'block' : 'none';
         document.getElementById('rulesEditor').contentEditable = !!user;
         render();
@@ -203,8 +268,9 @@
     };
 
     window.addDriver = () => {
-        const name = prompt("Imię:");
+        const name = prompt("Imię i nazwisko:");
         if (name) {
+            if(!localDB.drivers) localDB.drivers = [];
             localDB.drivers.push({ name, pts: 0 });
             if(!localDB.times) localDB.times = [];
             localDB.times.push({ name, best: "0:00.000", avg: "0:00.000" });
@@ -213,8 +279,12 @@
     };
 
     window.addTeam = () => {
-        const name = prompt("Zespół:");
-        if (name) { localDB.teams.push({ name, pts: 0 }); save(); }
+        const name = prompt("Nazwa zespołu:");
+        if (name) { 
+            if(!localDB.teams) localDB.teams = [];
+            localDB.teams.push({ name, pts: 0 }); 
+            save(); 
+        }
     };
 
     window.updateData = (cat, idx, field, val) => {
@@ -224,35 +294,44 @@
     };
 
     const save = () => set(dataRef, localDB);
-    window.removeEntry = (cat, i) => { if(confirm("Usunąć?")) { localDB[cat].splice(i, 1); save(); } };
+    window.removeEntry = (cat, i) => { if(confirm("Usunąć wpis?")) { localDB[cat].splice(i, 1); save(); } };
     const timeToMs = (t) => { if (!t || t === "0:00.000") return 9999999; return parseInt(t.replace(/[:.]/g, '')) || 9999999; };
 
     function render() {
         const edit = window.isLoggedIn;
-        const del = (cat, i) => edit ? `<button class="del-btn" onclick="window.removeEntry('${cat}',${i})">X</button>` : '';
+        const del = (cat, i) => edit ? `<span style="color:red; cursor:pointer; margin-right:10px" onclick="window.removeEntry('${cat}',${i})">×</span>` : '';
         const row = (cat, i, field, val, cl="") => `<td class="${cl}" contenteditable="${edit}" onblur="window.updateData('${cat}',${i},'${field}',this.innerText)">${val}</td>`;
 
-        document.getElementById('raceName').innerText = localDB.raceTitle || "Kwiecień GP";
+        document.getElementById('raceName').innerText = localDB.raceTitle || "GP WYŚCIG";
         document.getElementById('rulesEditor').innerText = localDB.rulesText || "Wpisz regulamin...";
-        
-        localDB.drivers.sort((a,b) => b.pts - a.pts);
-        document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => `<tr><td style="color:#444;">${i+1}${del('drivers',i)}</td>${row('drivers',i,'name',d.name)}${row('drivers',i,'pts',d.pts,'pts')}</tr>`).join('');
-        
-        localDB.teams.sort((a,b) => b.pts - a.pts);
-        document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => `<tr><td style="color:#444;">${i+1}${del('teams',i)}</td>${row('teams',i,'name',t.name)}${row('teams',i,'pts',t.pts,'pts')}</tr>`).join('');
+                
+        if(localDB.drivers) {
+            localDB.drivers.sort((a,b) => b.pts - a.pts);
+            document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => 
+                `<tr><td class="pos">${del('drivers',i)}${i+1}</td>${row('drivers',i,'name',d.name)}${row('drivers',i,'pts',d.pts,'pts')}</tr>`
+            ).join('');
+        }
 
-        if(!localDB.times) localDB.times = [];
-        const sortedBest = [...localDB.times].sort((a,b) => timeToMs(a.best) - timeToMs(b.best));
-        document.getElementById('bestBody').innerHTML = sortedBest.map((t) => {
-            const idx = localDB.times.findIndex(x => x.name === t.name);
-            return `<tr><td>${t.name}${del('times',idx)}</td>${row('times',idx,'best',t.best,'time')}</tr>`;
-        }).join('');
-        
-        const sortedAvg = [...localDB.times].sort((a,b) => timeToMs(a.avg) - timeToMs(b.avg));
-        document.getElementById('avgBody').innerHTML = sortedAvg.map((t) => {
-            const idx = localDB.times.findIndex(x => x.name === t.name);
-            return `<tr><td>${t.name}</td>${row('times',idx,'avg',t.avg,'time')}</tr>`;
-        }).join('');
+        if(localDB.teams) {
+            localDB.teams.sort((a,b) => b.pts - a.pts);
+            document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => 
+                `<tr><td class="pos">${del('teams',i)}${i+1}</td>${row('teams',i,'name',t.name)}${row('teams',i,'pts',t.pts,'pts')}</tr>`
+            ).join('');
+        }
+
+        if(localDB.times) {
+            const sortedBest = [...localDB.times].sort((a,b) => timeToMs(a.best) - timeToMs(b.best));
+            document.getElementById('bestBody').innerHTML = sortedBest.map((t) => {
+                const idx = localDB.times.findIndex(x => x.name === t.name);
+                return `<tr><td>${t.name}</td>${row('times',idx,'best',t.best,'time')}</tr>`;
+            }).join('');
+            
+            const sortedAvg = [...localDB.times].sort((a,b) => timeToMs(a.avg) - timeToMs(b.avg));
+            document.getElementById('avgBody').innerHTML = sortedAvg.map((t) => {
+                const idx = localDB.times.findIndex(x => x.name === t.name);
+                return `<tr><td>${t.name}</td>${row('times',idx,'avg',t.avg,'time')}</tr>`;
+            }).join('');
+        }
     }
 
     setInterval(() => {
