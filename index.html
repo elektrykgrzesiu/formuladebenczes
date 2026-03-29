@@ -43,16 +43,8 @@
         }
 
         .timer-section { text-align: center; margin: 25px 0; }
-        #timer {
-            font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem, 8vw, 3.8rem);
-            color: var(--primary); font-weight: 900; letter-spacing: 1px;
-            text-shadow: var(--glow-min);
-        }
-        .timer-sub-text {
-            font-family: 'Orbitron', sans-serif; font-size: clamp(0.9rem, 4vw, 1.2rem);
-            color: #fff; text-transform: uppercase; letter-spacing: 3px;
-            margin-top: 5px; font-weight: 700; opacity: 0.9;
-        }
+        #timer { font-family: 'Orbitron'; font-size: clamp(1.6rem, 8vw, 3.8rem); color: var(--primary); font-weight: 900; text-shadow: var(--glow-min); }
+        .timer-sub-text { font-family: 'Orbitron'; font-size: clamp(0.9rem, 4vw, 1.2rem); letter-spacing: 3px; margin-top: 5px; opacity: 0.9; }
 
         .admin-trigger { 
             position: fixed; top: 10px; right: 10px; 
@@ -60,43 +52,33 @@
             color: var(--primary); font-size: 1.5rem; cursor: pointer; 
             z-index: 9999; padding: 5px 10px; border-radius: 5px;
         }
-        .admin-active { background: var(--primary) !important; color: white !important; box-shadow: 0 0 15px var(--primary); }
+        .admin-active { background: var(--primary) !important; color: white !important; }
 
-        #adminPanel {
-            display: none; background: #000; border: 2px solid var(--primary);
-            padding: 20px; margin-bottom: 30px; text-align: center;
-        }
+        #adminPanel { display: none; background: #000; border: 2px solid var(--primary); padding: 20px; margin-bottom: 30px; text-align: center; }
         .admin-input { background: #111; border: 1px solid var(--primary); color: white; padding: 8px; margin: 5px; font-family: 'Orbitron'; width: 200px; }
-        .admin-btn {
-            background: var(--primary); color: white; border: none; padding: 10px 15px;
-            cursor: pointer; font-weight: 900; margin: 5px; text-transform: uppercase;
-            font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
-        }
+        .admin-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: 900; margin: 5px; text-transform: uppercase; font-family: 'Orbitron'; font-size: 0.8rem; }
 
         .grid-layout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; }
         @media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
 
         .card { background: var(--card-bg); border: 1px solid #1a1a1a; position: relative; margin-bottom: 10px; }
         .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--primary); }
-        .card-header { 
-            background: #0a0a0a; padding: 12px; font-size: 1rem; 
-            text-transform: uppercase; font-weight: 900; color: var(--primary);
-            font-family: 'Orbitron', sans-serif; font-style: italic; border-bottom: 1px solid #222;
-        }
+        .card-header { background: #0a0a0a; padding: 12px; font-size: 1rem; text-transform: uppercase; font-weight: 900; color: var(--primary); font-family: 'Orbitron'; border-bottom: 1px solid #222; }
 
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px; border-bottom: 1px solid #111; font-size: 0.85rem; }
         .pts { text-align: right; font-weight: 900; color: var(--primary); font-size: 1.2rem; }
         .time { font-weight: 900; color: var(--success); text-align: right; }
 
-        .last-race-header {
-            grid-column: 1 / -1; text-align: center; font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1.3rem, 5vw, 2.2rem); color: var(--primary); margin: 40px 0 20px 0;
-            text-transform: uppercase; font-weight: 900; font-style: italic; border-bottom: 2px solid var(--primary);
-        }
-
-        .track-section { grid-column: 1 / -1; width: 100%; height: 350px; border: 3px solid #1a1a1a; background: #000; position: relative; overflow: hidden; }
+        .last-race-header { grid-column: 1 / -1; text-align: center; font-family: 'Orbitron'; font-size: clamp(1.3rem, 5vw, 2.2rem); color: var(--primary); margin: 40px 0 20px 0; text-transform: uppercase; border-bottom: 2px solid var(--primary); }
+        .track-section { grid-column: 1 / -1; width: 100%; height: 350px; border: 3px solid #1a1a1a; background: #000; position: relative; overflow: hidden; margin-bottom: 40px; }
         .track-image { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(90deg); width: 350px; height: 100vw; max-height: 1200px; object-fit: contain; }
+
+        /* REGULAMIN */
+        .rules-card { grid-column: 1 / -1; margin-top: 20px; }
+        .rules-content { padding: 20px; color: #ccc; line-height: 1.6; }
+        .rules-content h3 { color: var(--primary); font-family: 'Orbitron'; margin-top: 0; }
+        .rules-content b { color: #fff; }
 
         .del-btn { background: #222; color: #ff0000; border: none; padding: 3px 6px; cursor: pointer; margin-left: 8px; font-size: 0.7rem; }
     </style>
@@ -109,7 +91,7 @@
     
     <div class="timer-section">
         <div id="timer">00D 00H 00M 00S</div>
-        <div id="raceName" class="timer-sub-text">Kwiecień GP</div>
+        <div id="raceName" class="timer-sub-text">Czekanie na dane...</div>
     </div>
 
     <div id="adminPanel">
@@ -126,14 +108,36 @@
     <div class="grid-layout">
         <div class="card"><div class="card-header">Drivers Standings</div><table><tbody id="driversBody"></tbody></table></div>
         <div class="card"><div class="card-header">Constructors Standings</div><table><tbody id="teamsBody"></tbody></table></div>
+        
         <div class="last-race-header">LAST RACE REPORT</div>
         <div class="card"><div class="card-header">Best Lap Times</div><table><tbody id="bestBody"></tbody></table></div>
         <div class="card"><div class="card-header">Average Laps Time</div><table><tbody id="avgBody"></tbody></table></div>
-        <div class="track-section"><img src="tor.png" class="track-image"></div>
+        
+        <div class="track-section">
+            <img src="tor.png" class="track-image">
+        </div>
+
+        <div class="card rules-card">
+            <div class="card-header">Rules</div>
+            <div class="rules-content">
+                <h3>1. Zasady Jazdy</h3>
+                <p>1.1. Obowiązuje zakaz celowego taranowania i spychania z toru. <br>
+                1.2. <b>Fair Play:</b> Jeśli zyskasz pozycję przez kontakt, oddaj ją niezwłocznie.</p>
+                
+                <h3>2. Punktacja Wyścigowa</h3>
+                <p>Top 10 otrzymuje punkty: 25-18-15-12-10-8-6-4-2-1. <br>
+                Dodatkowy <b>1 pkt</b> za najszybsze kółko w wyścigu.</p>
+
+                <h3>3. Flagi</h3>
+                <p><b>Niebieska flaga:</b> Przepuść lidera przy najbliższej bezpiecznej okazji. <br>
+                <b>Żółta flaga:</b> Zachowaj szczególną ostrożność, zakaz wyprzedzania.</p>
+            </div>
+        </div>
     </div>
 </div>
 
 <script type="module">
+    // ... reszta skryptu bez zmian ...
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
@@ -153,27 +157,7 @@
     const auth = getAuth(app);
     const dataRef = ref(db, 'fdb_live_data');
 
-    const defaultDB = {
-        drivers: [
-            {name:"KZJ",pts:0},{name:"Hasztasz",pts:0},{name:"wichereky",pts:0},
-            {name:"SuPerFlYJAcksOn",pts:0},{name:"max verstappen prowokacja",pts:0},
-            {name:"verxzy27",pts:0},{name:"czambalimbe",pts:0},{name:"Dejvajd",pts:0},
-            {name:"Don Czikit",pts:0},{name:"Gisonik",pts:0},{name:"0matй",pts:0},
-            {name:"StekBzdur",pts:0},{name:"amekowek500",pts:0},{name:"TorettoTDR",pts:0},
-            {name:"golab5700",pts:0},{name:"czasu",pts:0},{name:"Glory Cash",pts:0},
-            {name:"A$_M4RO",pts:0},{name:"piotrkow",pts:0},{name:"zolniezyk",pts:0}
-        ],
-        teams: [
-            {name:"Ferrari",pts:0},{name:"McLaren",pts:0},{name:"Mercedes",pts:0},
-            {name:"Red Bull Racing",pts:0},{name:"Williams",pts:0},{name:"Aston Martin",pts:0},
-            {name:"Haas",pts:0},{name:"Kick Sauber",pts:0},{name:"Alpine",pts:0},{name:"Racing Bulls",pts:0}
-        ],
-        times: [],
-        raceDate: "2026-04-18T19:00",
-        raceTitle: "Kwiecień GP"
-    };
-
-    let localDB = defaultDB;
+    let localDB = { drivers: [], teams: [], times: [], raceDate: "", raceTitle: "" };
     window.isLoggedIn = false;
 
     onAuthStateChanged(auth, (user) => {
@@ -225,15 +209,8 @@
     };
 
     const save = () => set(dataRef, localDB);
-    window.resetDatabase = () => { if(confirm("Reset bazy?")) set(dataRef, defaultDB); };
     window.removeEntry = (cat, i) => { if(confirm("Usunąć?")) { localDB[cat].splice(i, 1); save(); } };
-
-    // FUNKCJA KONWERTUJĄCA CZAS NA LICZBĘ DO SORTOWANIA
-    const timeToMs = (t) => {
-        if (!t || t === "0:00.000") return 9999999;
-        const clean = t.replace(/[:.]/g, '');
-        return parseInt(clean) || 9999999;
-    };
+    const timeToMs = (t) => { if (!t || t === "0:00.000") return 9999999; return parseInt(t.replace(/[:.]/g, '')) || 9999999; };
 
     function render() {
         const edit = window.isLoggedIn;
@@ -241,28 +218,22 @@
         const row = (cat, i, field, val, cl="") => `<td class="${cl}" contenteditable="${edit}" onblur="window.updateData('${cat}',${i},'${field}',this.innerText)">${val}</td>`;
 
         document.getElementById('raceName').innerText = localDB.raceTitle || "Kwiecień GP";
-
-        // Sortowanie punktów (od największych)
         localDB.drivers.sort((a,b) => b.pts - a.pts);
         document.getElementById('driversBody').innerHTML = localDB.drivers.map((d, i) => `<tr><td style="color:#444;">${i+1}${del('drivers',i)}</td>${row('drivers',i,'name',d.name)}${row('drivers',i,'pts',d.pts,'pts')}</tr>`).join('');
-        
         localDB.teams.sort((a,b) => b.pts - a.pts);
         document.getElementById('teamsBody').innerHTML = localDB.teams.map((t, i) => `<tr><td style="color:#444;">${i+1}${del('teams',i)}</td>${row('teams',i,'name',t.name)}${row('teams',i,'pts',t.pts,'pts')}</tr>`).join('');
 
         if(!localDB.times) localDB.times = [];
-        
-        // Sortowanie Best Laps (od najmniejszych)
         const sortedBest = [...localDB.times].sort((a,b) => timeToMs(a.best) - timeToMs(b.best));
-        document.getElementById('bestBody').innerHTML = sortedBest.map((t, i) => {
-            const originalIndex = localDB.times.findIndex(x => x.name === t.name);
-            return `<tr><td>${t.name}${del('times',originalIndex)}</td>${row('times',originalIndex,'best',t.best,'time')}</tr>`;
+        document.getElementById('bestBody').innerHTML = sortedBest.map((t) => {
+            const idx = localDB.times.findIndex(x => x.name === t.name);
+            return `<tr><td>${t.name}${del('times',idx)}</td>${row('times',idx,'best',t.best,'time')}</tr>`;
         }).join('');
-
-        // Sortowanie Average Laps (od najmniejszych)
+        
         const sortedAvg = [...localDB.times].sort((a,b) => timeToMs(a.avg) - timeToMs(b.avg));
-        document.getElementById('avgBody').innerHTML = sortedAvg.map((t, i) => {
-            const originalIndex = localDB.times.findIndex(x => x.name === t.name);
-            return `<tr><td>${t.name}</td>${row('times',originalIndex,'avg',t.avg,'time')}</tr>`;
+        document.getElementById('avgBody').innerHTML = sortedAvg.map((t) => {
+            const idx = localDB.times.findIndex(x => x.name === t.name);
+            return `<tr><td>${t.name}</td>${row('times',idx,'avg',t.avg,'time')}</tr>`;
         }).join('');
     }
 
