@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -460,7 +461,7 @@
 <div id="rulesModal">
     <div class="modal-content">
         <span style="float:right; cursor:pointer; font-size:1.6rem; line-height:1; color:var(--text-dim)" onclick="closeRules()">&times;</span>
-        <h2>REGULATIONS</h2>
+        <h2>REGULAMIN</h2>
         <div id="rulesEditor" style="min-height:220px; outline:none; line-height:1.7; color:var(--text-dim)" onblur="window.updateRules(this.innerText)">Wpisz regulamin...</div>
     </div>
 </div>
@@ -471,19 +472,14 @@
     <div class="header-stripe"></div>
     <div class="header-inner">
         <div class="logo-block">
-            <span class="header-tag">&#9660; SEZON 2025/26 &#9660;</span>
+            <span class="header-tag">&#9660; SEZON 2026 &#9660;</span>
             <h1>Formula de Benczes</h1>
         </div>
-        <div class="live-badge">
-            <div class="live-dot"></div>
-            LIVE
-        </div>
-    </div>
 </header>
 
 <div class="timer-section">
     <div class="timer-left">
-        <span class="race-label">Następny wyścig</span>
+        <span class="race-label">Nastepny wyścig</span>
         <div id="raceName">Czekanie na dane...</div>
     </div>
     <div id="timer">00<span>D</span> 00<span>H</span> 00<span>M</span> 00<span>S</span></div>
@@ -554,8 +550,8 @@
 
         <!-- TRACK IMAGE — same width as the 2-col grid above -->
         <div class="track-card">
-            <img src="tor.png" class="track-image" alt="Circuit Map">
-        </div>
+    <img src="tor.png" class="track-image" alt="Circuit Map" style="transform: rotate(180deg); display: block; max-width: 100%;">
+</div>
     </div>
 
 </div>
